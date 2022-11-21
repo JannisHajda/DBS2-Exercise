@@ -34,7 +34,10 @@ public class TPMMSJava extends SortOperation {
 
     @Override
     public int estimatedIOCost(@NotNull Relation relation) {
-        throw new UnsupportedOperationException("TODO");
+        // phase 1: read all blocks from disk, write all blocks in lists to disk
+        // phase 2: read all blocks from lists, write all blocks to output
+        // => IO = 4 * (number of blocks)
+        return relation.getEstimatedSize() * 4;
     }
 
     @Override
@@ -42,7 +45,6 @@ public class TPMMSJava extends SortOperation {
         BlockManager manager = this.getBlockManager();
         int memSize = manager.getFreeBlocks();
         LinkedList<Block> memBlocks = new LinkedList<>();
-        Comparator<Tuple> comparator = relation.getColumns().getColumnComparator(this.getSortColumnIndex());
 
         int dataSize = relation.getEstimatedSize();
 
@@ -50,11 +52,12 @@ public class TPMMSJava extends SortOperation {
             throw new RelationSizeExceedsCapacityException();
         }
 
-        phase1(relation, manager, memSize, memBlocks, comparator);
+        phase1(relation, manager, memSize, memBlocks);
         phase2(output, relation, dataSize, manager, memSize, memBlocks);
     }
 
-    private void phase1(Relation relation, BlockManager manager, int memSize, LinkedList<Block> memBlocks, Comparator<Tuple> comparator) {
+    private void phase1(Relation relation, BlockManager manager, int memSize, LinkedList<Block> memBlocks) {
+        Comparator<Tuple> comparator = relation.getColumns().getColumnComparator(this.getSortColumnIndex());
         Iterator<Block> diskBlocks = relation.iterator();
 
         while (diskBlocks.hasNext()) {
@@ -152,7 +155,7 @@ public class TPMMSJava extends SortOperation {
                     memBlocks.set(tupleIndex, memBlock);
                     queue.add(new Pair<>(tupleIndex, tupleIterator.next()));
                 } else {
-                    // if there are no more blocks in the last list, we are done
+                    // if there are no more blocks in the queue, we are done
                     if (queue.isEmpty()) {
                         output.output(outputBlock);
                         break;
@@ -177,5 +180,4 @@ public class TPMMSJava extends SortOperation {
         tupleIterators.clear();
         outputBlock = null;
     }
-
 }
