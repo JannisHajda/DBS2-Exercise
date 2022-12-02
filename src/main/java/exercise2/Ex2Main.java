@@ -53,5 +53,7 @@ public class Ex2Main {
          * playground
          * ~ feel free to experiment with the tree and tree nodes here
          */
+
+        tree.insert(38, new ValueReference(16));
     }
 }
