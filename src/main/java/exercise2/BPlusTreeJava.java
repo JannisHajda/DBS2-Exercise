@@ -100,12 +100,11 @@ public class BPlusTreeJava extends AbstractBPlusTree {
                 allReferences[i] = left.references[i];
             }
 
-            allKeys[allKeys.length - 1] = key;
-            allReferences[allReferences.length - 1] = reference;
 
             // find insert position for new key
             int insertPosition = 0;
-            while (insertPosition < allKeys.length && allKeys[insertPosition] != null && key >= allKeys[insertPosition]) {
+            while (insertPosition < allKeys.length && allKeys[insertPosition] != null
+                    && key >= allKeys[insertPosition]) {
                 insertPosition++;
             }
 
@@ -116,7 +115,6 @@ public class BPlusTreeJava extends AbstractBPlusTree {
 
             // insert new key
             allKeys[insertPosition] = key;
-
 
             // shift references to the right
             for (int i = allReferences.length - 1; i > insertPosition + 1; i--) {
@@ -169,13 +167,13 @@ public class BPlusTreeJava extends AbstractBPlusTree {
             left.keys[i - 1] = null;
             left.references[i] = null;
 
-            if (root == node) {
+            if (root == left) {
                 InnerNode newRoot = new InnerNode(order);
                 newRoot.keys[0] = largestKey;
                 newRoot.references[0] = left;
                 newRoot.references[1] = right;
 
-                this.rootNode = newRoot;
+                root = newRoot;
                 return;
             } else {
                 this.insertLoop(root, stack, largestKey, right);
@@ -199,8 +197,6 @@ public class BPlusTreeJava extends AbstractBPlusTree {
 
         return null;
     }
-
-
 
     @Nullable
     @Override
@@ -281,13 +277,12 @@ public class BPlusTreeJava extends AbstractBPlusTree {
                 // insert smallest key of right node into parent node
                 int smallestKey = rightNode.keys[0];
 
-                if (potentialLeaf == root) {
+                if (leftNode == root) {
                     // create new root node
                     InnerNode newRoot = new InnerNode(this.order);
                     newRoot.keys[0] = smallestKey;
                     newRoot.references[0] = leftNode;
                     newRoot.references[1] = rightNode;
-
                     this.rootNode = newRoot;
                 } else {
                     insertLoop(root, nodePath, smallestKey, rightNode);
@@ -298,6 +293,7 @@ public class BPlusTreeJava extends AbstractBPlusTree {
                     if (keys[i] == null) {
                         keys[i] = key;
                         potentialLeaf.references[i] = value;
+                        break;
                     }
 
                     int currentKey = keys[i];
@@ -311,6 +307,7 @@ public class BPlusTreeJava extends AbstractBPlusTree {
 
                         keys[i] = key;
                         potentialLeaf.references[i] = value;
+                        break;
                     }
                 }
             }
@@ -318,28 +315,30 @@ public class BPlusTreeJava extends AbstractBPlusTree {
 
         return value;
 
-
         // Find LeafNode in which the key has to be inserted.
-        //   It is a good idea to track the "path" to the LeafNode in a Stack or something alike.
+        // It is a good idea to track the "path" to the LeafNode in a Stack or something
+        // alike.
         // Does the key already exist? Overwrite!
-        //   leafNode.references[pos] = value;
-        //   But remember return the old value!
+        // leafNode.references[pos] = value;
+        // But remember return the old value!
         // New key - Is there still space?
-        //   leafNode.keys[pos] = key;
-        //   leafNode.references[pos] = value;
-        //   Don't forget to update the parent keys and so on...
+        // leafNode.keys[pos] = key;
+        // leafNode.references[pos] = value;
+        // Don't forget to update the parent keys and so on...
         // Otherwise
-        //   Split the LeafNode in two!
-        //   Is parent node root?
-        //     update rootNode = ... // will have only one key
-        //   Was node instanceof LeafNode?
-        //     update parentNode.keys[?] = ...
-        //   Don't forget to update the parent keys and so on...
+        // Split the LeafNode in two!
+        // Is parent node root?
+        // update rootNode = ... // will have only one key
+        // Was node instanceof LeafNode?
+        // update parentNode.keys[?] = ...
+        // Don't forget to update the parent keys and so on...
 
         // Check out the exercise slides for a flow chart of this logic.
         // If you feel stuck, try to draw what you want to do and
-        // check out Ex2Main for playing around with the tree by e.g. printing or debugging it.
-        // Also check out all the methods on BPlusTreeNode and how they are implemented or
+        // check out Ex2Main for playing around with the tree by e.g. printing or
+        // debugging it.
+        // Also check out all the methods on BPlusTreeNode and how they are implemented
+        // or
         // the tests in BPlusTreeNodeTests and BPlusTreeTests!
     }
 }
