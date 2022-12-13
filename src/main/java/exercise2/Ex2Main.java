@@ -62,6 +62,8 @@ public class Ex2Main {
 
         tree2.insert(3, new ValueReference(3));
 
+        tree2.isValid();
+
         tree2.insert(8, new ValueReference(8));
 
         tree2.insert(1, new ValueReference(1));

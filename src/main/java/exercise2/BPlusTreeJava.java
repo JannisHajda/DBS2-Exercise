@@ -173,7 +173,7 @@ public class BPlusTreeJava extends AbstractBPlusTree {
                 newRoot.references[0] = left;
                 newRoot.references[1] = right;
 
-                root = newRoot;
+                this.rootNode = newRoot;
                 return;
             } else {
                 this.insertLoop(root, stack, largestKey, right);
@@ -217,7 +217,7 @@ public class BPlusTreeJava extends AbstractBPlusTree {
 
             if (potentialLeaf.isFull()) {
                 // split leafNode
-                LeafNode leftNode = potentialLeaf;
+                LeafNode leftNode = new LeafNode(this.order);
                 LeafNode rightNode = new LeafNode(this.order);
 
                 Integer[] allKeys = new Integer[keys.length + 1];
@@ -272,19 +272,34 @@ public class BPlusTreeJava extends AbstractBPlusTree {
                 }
 
                 // set next reference
+                if (potentialLeaf.nextSibling != null) {
+                    rightNode.nextSibling = potentialLeaf.nextSibling;
+                }
+
                 leftNode.nextSibling = rightNode;
 
                 // insert smallest key of right node into parent node
                 int smallestKey = rightNode.keys[0];
 
-                if (leftNode == root) {
+                if (potentialLeaf == root) {
                     // create new root node
                     InnerNode newRoot = new InnerNode(this.order);
                     newRoot.keys[0] = smallestKey;
                     newRoot.references[0] = leftNode;
                     newRoot.references[1] = rightNode;
                     this.rootNode = newRoot;
+                    potentialLeaf = leftNode;
                 } else {
+                    for (int i = 0; i < leftNode.keys.length; i++) {
+                        potentialLeaf.keys[i] = leftNode.keys[i];
+                    }
+
+                    for (int i = 0; i < leftNode.references.length; i++) {
+                        potentialLeaf.references[i] = leftNode.references[i];
+                    }
+
+                    potentialLeaf.nextSibling = leftNode.nextSibling;
+
                     insertLoop(root, nodePath, smallestKey, rightNode);
                 }
             } else {
@@ -313,7 +328,7 @@ public class BPlusTreeJava extends AbstractBPlusTree {
             }
         }
 
-        return value;
+        return null;
 
         // Find LeafNode in which the key has to be inserted.
         // It is a good idea to track the "path" to the LeafNode in a Stack or something

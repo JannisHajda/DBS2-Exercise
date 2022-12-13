@@ -24,6 +24,7 @@ public class InitialRootNode extends LeafNode {
             if(references[i] == null)
                 return false;
         }
+        // if initial root node is now a lead node, it's required to have a next node
         if(nextSibling != null)
             return false;
         return true;
